@@ -11,6 +11,11 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { ShopProvider } from "@/lib/shop-store";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { CartDrawer, CheckoutDialog, Toast, WishlistDrawer } from "@/components/ShopPanels";
+import { ProductDialog } from "@/components/ProductDialog";
 
 function NotFoundComponent() {
   return (
