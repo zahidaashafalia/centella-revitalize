@@ -57,7 +57,7 @@ function KontakPage() {
           {[
             ["Apakah produk original?", "Ya, seluruh produk 100% original dan bersegel resmi."],
             ["Berapa lama pengiriman?", "1–3 hari untuk Jabodetabek, 2–5 hari luar kota."],
-            ["Bagaimana cara memesan?", "Tambahkan ke keranjang, checkout, lalu konfirmasi via WhatsApp."],
+            ["Bagaimana cara memesan?", "Tambahkan ke keranjang, checkout, lalu selesaikan pembayaran di Shopee official @skin1004official."],
           ].map(([q, a]) => (
             <div key={q}>
               <p className="font-medium">{q}</p>
