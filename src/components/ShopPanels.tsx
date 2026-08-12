@@ -116,7 +116,8 @@ export function WishlistDrawer() {
 
 export function CheckoutDialog() {
   const shop = useShop();
-  const [form, setForm] = useState({ name: "", contact: "", address: "", note: "", payment: "Transfer Bank" });
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({ name: "", note: "" });
 
   if (shop.panel !== "checkout") return null;
 
@@ -129,75 +130,175 @@ export function CheckoutDialog() {
       shop.subtotal,
     )}\nOngkir: ${shop.shipping === 0 ? "Gratis" : rupiah(shop.shipping)}\nTotal: ${rupiah(
       shop.total,
-    )}\n\nNama: ${form.name}\nKontak: ${form.contact}\nAlamat: ${form.address}\nPembayaran: ${
-      form.payment
-    }\nCatatan: ${form.note || "-"}`;
+    )}\n\nNama: ${form.name || "-"}\nCatatan: ${form.note || "-"}`;
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(msg).catch(() => {});
     }
+    setStep(2);
+  };
+
+  const goToShopee = () => {
     window.open(STORE.shopee.url, "_blank");
     shop.clear();
     shop.setPanel(null);
-    shop.notify("Ringkasan pesanan disalin — lanjutkan di Shopee ✓");
+    shop.notify("Ringkasan pesanan disalin — lanjut ke Shopee Official ✓");
   };
 
   return (
     <div className="fixed inset-0 z-[70] grid place-items-center p-4">
       <div className="absolute inset-0 bg-foreground/50 backdrop-blur-sm" onClick={() => shop.setPanel(null)} />
-      <form
-        onSubmit={submit}
-        className="relative max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-card p-7 shadow-[var(--shadow-lux)]"
-      >
-        <h2 className="font-display text-2xl">Data Pengiriman</h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Ringkasan pesanan akan disalin otomatis, lalu kamu diarahkan ke Shopee official{" "}
-          {STORE.shopee.handle} untuk konfirmasi pembayaran.
-        </p>
+      <div className="relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl bg-card p-7 shadow-[var(--shadow-lux)]">
+        {step === 1 ? (
+          <>
+            <h2 className="font-display text-2xl">Ringkasan Pesanan</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Cek kembali produk yang kamu pesan sebelum melanjutkan ke Shopee Official.
+            </p>
 
-        <div className="mt-5 space-y-3">
-          <Field label="Nama Lengkap" value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
-          <Field
-            label="Akun Instagram / TikTok / Shopee"
-            value={form.contact}
-            onChange={(v) => setForm({ ...form, contact: v })}
-            required
-          />
-          <Field label="Alamat Lengkap" value={form.address} onChange={(v) => setForm({ ...form, address: v })} required textarea />
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              Metode Pembayaran
-            </span>
-            <select
-              value={form.payment}
-              onChange={(e) => setForm({ ...form, payment: e.target.value })}
-              className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none focus:border-primary"
-            >
-              <option>Transfer Bank</option>
-              <option>QRIS</option>
-              <option>COD (Bayar di Tempat)</option>
-            </select>
-          </label>
-          <Field label="Catatan (opsional)" value={form.note} onChange={(v) => setForm({ ...form, note: v })} />
-        </div>
+            <div className="mt-5 space-y-4">
+              {shop.lines.map(({ product, qty }) => (
+                <div key={product.id} className="flex gap-4 border-b border-border pb-4 last:border-0">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="size-16 rounded-xl object-cover"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{product.name}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {rupiah(product.price)} × {qty}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-primary">
+                      {rupiah(product.price * qty)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-        <div className="mt-5 space-y-2 rounded-2xl bg-secondary p-4">
-          <Row label="Subtotal" value={rupiah(shop.subtotal)} />
-          <Row label="Ongkir" value={shop.shipping === 0 ? "Gratis" : rupiah(shop.shipping)} />
-          <Row label="Total" value={rupiah(shop.total)} strong />
-        </div>
+            <div className="mt-5 rounded-2xl border border-border p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Alamat Kantor Pusat
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed">{STORE.address}</p>
+            </div>
 
-        <div className="mt-5 flex gap-3">
-          <button type="button" onClick={() => shop.setPanel("cart")} className="flex-1 rounded-full border border-border py-3 text-xs uppercase tracking-widest">
-            Kembali
-          </button>
-          <button type="submit" className="flex-[2] rounded-full bg-foreground py-3 text-xs font-semibold uppercase tracking-widest text-background">
-            Lanjut ke Shopee
-          </button>
-        </div>
-      </form>
+            <div className="mt-4 space-y-2 rounded-2xl bg-secondary p-4">
+              <Row label="Subtotal" value={rupiah(shop.subtotal)} />
+              <Row
+                label="Ongkir"
+                value={
+                  shop.subtotal >= STORE.freeShippingMin
+                    ? "Gratis (di atas Rp 300.000)"
+                    : rupiah(shop.shipping)
+                }
+              />
+              <Row label="Total Belanja" value={rupiah(shop.total)} strong />
+            </div>
+
+            <form onSubmit={submit} className="mt-5 space-y-3">
+              <Field
+                label="Nama Lengkap (opsional)"
+                value={form.name}
+                onChange={(v) => setForm({ ...form, name: v })}
+                placeholder="Nama penerima pesanan"
+              />
+              <Field
+                label="Catatan (opsional)"
+                value={form.note}
+                onChange={(v) => setForm({ ...form, note: v })}
+                placeholder="Contoh: varian, voucher, atau permintaan khusus"
+                textarea
+              />
+              <div className="mt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => shop.setPanel("cart")}
+                  className="flex-1 rounded-full border border-border py-3 text-xs uppercase tracking-widest"
+                >
+                  Kembali
+                </button>
+                <button
+                  type="submit"
+                  className="flex-[2] rounded-full bg-foreground py-3 text-xs font-semibold uppercase tracking-widest text-background"
+                >
+                  Lanjut ke Shopee
+                </button>
+              </div>
+            </form>
+          </>
+        ) : (
+          <>
+            <h2 className="font-display text-2xl">Lanjutkan di Shopee</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Ringkasan pesanan sudah disalin. Ikuti langkah berikut untuk checkout aman.
+            </p>
+
+            <ol className="mt-5 space-y-3 text-sm">
+              <li className="flex gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
+                  1
+                </span>
+                <span>
+                  Klik tombol di bawah untuk masuk ke{" "}
+                  <strong>Shopee Official {STORE.shopee.handle}</strong>.
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
+                  2
+                </span>
+                <span>Cari produk Centella Madagascar yang sama, lalu tambahkan ke keranjang Shopee sesuai jumlah pesananmu.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
+                  3
+                </span>
+                <span>
+                  Tempelkan ringkasan pesanan di chat Shopee Official kami (sudah otomatis disalin) untuk konfirmasi stok dan diskon terkini.
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
+                  4
+                </span>
+                <span>Selesaikan pembayaran melalui metode yang tersedia di Shopee. Transaksi kamu terlindungi oleh Shopee Guarantee.</span>
+              </li>
+            </ol>
+
+            <div className="mt-5 rounded-2xl border border-dashed border-border p-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Total Belanja
+              </p>
+              <p className="mt-1 font-display text-2xl text-primary">{rupiah(shop.total)}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {shop.subtotal >= STORE.freeShippingMin
+                  ? "Gratis ongkir sudah termasuk"
+                  : `Ongkir ${rupiah(shop.shipping)} ditambahkan`}
+              </p>
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={() => setStep(1)}
+                className="flex-1 rounded-full border border-border py-3 text-xs uppercase tracking-widest"
+              >
+                Kembali
+              </button>
+              <button
+                onClick={goToShopee}
+                className="flex-[2] rounded-full bg-foreground py-3 text-xs font-semibold uppercase tracking-widest text-background"
+              >
+                Buka Shopee Official
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
+
 
 export function Toast() {
   const { toast } = useShop();
@@ -235,24 +336,39 @@ function Field({
   onChange,
   required,
   textarea,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   required?: boolean;
   textarea?: boolean;
+  placeholder?: string;
 }) {
   const cls =
-    "w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none focus:border-primary";
+    "w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none focus:border-primary placeholder:text-muted-foreground/50";
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-medium uppercase tracking-widest text-muted-foreground">
         {label}
       </span>
       {textarea ? (
-        <textarea required={required} rows={3} value={value} onChange={(e) => onChange(e.target.value)} className={cls} />
+        <textarea
+          required={required}
+          rows={3}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={cls}
+          placeholder={placeholder}
+        />
       ) : (
-        <input required={required} value={value} onChange={(e) => onChange(e.target.value)} className={cls} />
+        <input
+          required={required}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={cls}
+          placeholder={placeholder}
+        />
       )}
     </label>
   );
