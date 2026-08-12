@@ -191,7 +191,7 @@ export function CheckoutDialog() {
             Kembali
           </button>
           <button type="submit" className="flex-[2] rounded-full bg-foreground py-3 text-xs font-semibold uppercase tracking-widest text-background">
-            Pesan via WhatsApp
+            Lanjut ke Shopee
           </button>
         </div>
       </form>
