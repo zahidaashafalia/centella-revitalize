@@ -116,7 +116,7 @@ export function WishlistDrawer() {
 
 export function CheckoutDialog() {
   const shop = useShop();
-  const [form, setForm] = useState({ name: "", phone: "", address: "", note: "", payment: "Transfer Bank" });
+  const [form, setForm] = useState({ name: "", contact: "", address: "", note: "", payment: "Transfer Bank" });
 
   if (shop.panel !== "checkout") return null;
 
@@ -129,13 +129,16 @@ export function CheckoutDialog() {
       shop.subtotal,
     )}\nOngkir: ${shop.shipping === 0 ? "Gratis" : rupiah(shop.shipping)}\nTotal: ${rupiah(
       shop.total,
-    )}\n\nNama: ${form.name}\nNo. HP: ${form.phone}\nAlamat: ${form.address}\nPembayaran: ${
+    )}\n\nNama: ${form.name}\nKontak: ${form.contact}\nAlamat: ${form.address}\nPembayaran: ${
       form.payment
     }\nCatatan: ${form.note || "-"}`;
-    window.open(`https://wa.me/${STORE.waNumber}?text=${encodeURIComponent(msg)}`, "_blank");
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(msg).catch(() => {});
+    }
+    window.open(STORE.shopee.url, "_blank");
     shop.clear();
     shop.setPanel(null);
-    shop.notify("Pesanan dikirim ke WhatsApp kami ✓");
+    shop.notify("Ringkasan pesanan disalin — lanjutkan di Shopee ✓");
   };
 
   return (
@@ -147,12 +150,18 @@ export function CheckoutDialog() {
       >
         <h2 className="font-display text-2xl">Data Pengiriman</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Pesanan diteruskan ke WhatsApp admin untuk konfirmasi pembayaran.
+          Ringkasan pesanan akan disalin otomatis, lalu kamu diarahkan ke Shopee official{" "}
+          {STORE.shopee.handle} untuk konfirmasi pembayaran.
         </p>
 
         <div className="mt-5 space-y-3">
           <Field label="Nama Lengkap" value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
-          <Field label="Nomor WhatsApp" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required />
+          <Field
+            label="Akun Instagram / TikTok / Shopee"
+            value={form.contact}
+            onChange={(v) => setForm({ ...form, contact: v })}
+            required
+          />
           <Field label="Alamat Lengkap" value={form.address} onChange={(v) => setForm({ ...form, address: v })} required textarea />
           <label className="block">
             <span className="mb-1.5 block text-xs font-medium uppercase tracking-widest text-muted-foreground">
