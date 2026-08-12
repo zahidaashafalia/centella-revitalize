@@ -336,24 +336,39 @@ function Field({
   onChange,
   required,
   textarea,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   required?: boolean;
   textarea?: boolean;
+  placeholder?: string;
 }) {
   const cls =
-    "w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none focus:border-primary";
+    "w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none focus:border-primary placeholder:text-muted-foreground/50";
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-medium uppercase tracking-widest text-muted-foreground">
         {label}
       </span>
       {textarea ? (
-        <textarea required={required} rows={3} value={value} onChange={(e) => onChange(e.target.value)} className={cls} />
+        <textarea
+          required={required}
+          rows={3}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={cls}
+          placeholder={placeholder}
+        />
       ) : (
-        <input required={required} value={value} onChange={(e) => onChange(e.target.value)} className={cls} />
+        <input
+          required={required}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={cls}
+          placeholder={placeholder}
+        />
       )}
     </label>
   );
