@@ -33,12 +33,22 @@ export function Footer() {
           <h3 className="mb-3 text-sm font-semibold">Hubungi Kami</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>
-              <a href={`https://wa.me/${STORE.waNumber}`} target="_blank" rel="noreferrer">
-                WhatsApp Admin
+              <a href={STORE.instagram.url} target="_blank" rel="noreferrer" className="hover:text-primary">
+                Instagram {STORE.instagram.handle}
               </a>
             </li>
-            <li>hello@centellamadagascar.id</li>
-            <li>Senin–Sabtu, 09.00–18.00 WIB</li>
+            <li>
+              <a href={STORE.tiktok.url} target="_blank" rel="noreferrer" className="hover:text-primary">
+                TikTok {STORE.tiktok.handle}
+              </a>
+            </li>
+            <li>
+              <a href={STORE.shopee.url} target="_blank" rel="noreferrer" className="hover:text-primary">
+                Shopee {STORE.shopee.handle}
+              </a>
+            </li>
+            <li>{STORE.email}</li>
+            <li className="text-xs">{STORE.address}</li>
           </ul>
         </div>
       </div>
