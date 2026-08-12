@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Toko resmi skincare Centella Madagascar: toner, ampoule, sunscreen, dan cream penenang kulit. Belanja mudah, pesan cepat via WhatsApp.",
+          "Toko resmi skincare Centella Madagascar: toner, ampoule, sunscreen, dan cream penenang kulit. Belanja mudah lewat Shopee official.",
       },
       { property: "og:title", content: "Centella Madagascar — Skincare Centella" },
       {
@@ -78,7 +78,7 @@ function HomePage() {
         {[
           ["Gratis Ongkir", "Untuk belanja di atas Rp 300.000"],
           ["Dermatologically Tested", "Aman untuk kulit sensitif"],
-          ["Pesan via WhatsApp", "Konfirmasi cepat oleh admin"],
+          ["Shopee Official Store", "Checkout aman di @skin1004official"],
         ].map(([t, d]) => (
           <div key={t} className="card-lux p-6">
             <p className="text-sm font-semibold">{t}</p>

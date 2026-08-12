@@ -182,7 +182,12 @@ export const products: Product[] = [
 ];
 
 export const STORE = {
-  waNumber: "6281234567890",
+  instagram: { handle: "@skin1004_indonesia", url: "https://www.instagram.com/skin1004_indonesia/" },
+  tiktok: { handle: "@skin1004_indonesia", url: "https://www.tiktok.com/@skin1004_indonesia" },
+  shopee: { handle: "@skin1004official", url: "https://shopee.co.id/skin1004official" },
+  email: "hello@centellamadagascar.id",
+  address:
+    "Lantai 11 & 12, Gangnam N Tower, 129 Teheran-ro, Gangnam-gu, Seoul, Republik Korea (Kode Pos: 06133)",
   shipping: 22000,
   freeShippingMin: 300000,
 };
