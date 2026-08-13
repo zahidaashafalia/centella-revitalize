@@ -157,9 +157,9 @@ export function CheckoutDialog() {
       .join("\n");
     const msg = `Halo Centella Madagascar, saya ingin memesan:\n\n${items}\n\nSubtotal: ${rupiah(
       shop.subtotal,
-    )}\nOngkir: ${shop.shipping === 0 ? "Gratis" : rupiah(shop.shipping)}\nTotal: ${rupiah(
-      shop.total,
-    )}\n\nNama: ${form.name || "-"}\nCatatan: ${form.note || "-"}`;
+    )}\nOngkir (${opt.name}): ${ongkir === 0 ? "Gratis" : rupiah(ongkir)}\nEstimasi tiba: ${
+      opt.eta
+    }\nTotal: ${rupiah(grandTotal)}\n\nNama: ${form.name || "-"}\nCatatan: ${form.note || "-"}`;
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(msg).catch(() => {});
     }
