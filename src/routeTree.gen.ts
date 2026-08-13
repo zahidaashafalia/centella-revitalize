@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as KonfirmasiRouteImport } from './routes/konfirmasi'
 import { Route as KontakRouteImport } from './routes/kontak'
+import { Route as LacakRouteImport } from './routes/lacak'
 import { Route as ProdukRouteImport } from './routes/produk'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const KontakRoute = KontakRouteImport.update({
   path: '/kontak',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LacakRoute = LacakRouteImport.update({
+  id: '/lacak',
+  path: '/lacak',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProdukRoute = ProdukRouteImport.update({
   id: '/produk',
   path: '/produk',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/konfirmasi': typeof KonfirmasiRoute
   '/kontak': typeof KontakRoute
+  '/lacak': typeof LacakRoute
   '/produk': typeof ProdukRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/konfirmasi': typeof KonfirmasiRoute
   '/kontak': typeof KontakRoute
+  '/lacak': typeof LacakRoute
   '/produk': typeof ProdukRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,16 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/konfirmasi': typeof KonfirmasiRoute
   '/kontak': typeof KontakRoute
+  '/lacak': typeof LacakRoute
   '/produk': typeof ProdukRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/faq' | '/konfirmasi' | '/kontak' | '/produk'
+  fullPaths: '/' | '/faq' | '/konfirmasi' | '/kontak' | '/lacak' | '/produk'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/faq' | '/konfirmasi' | '/kontak' | '/produk'
-  id: '__root__' | '/' | '/faq' | '/konfirmasi' | '/kontak' | '/produk'
+  to: '/' | '/faq' | '/konfirmasi' | '/kontak' | '/lacak' | '/produk'
+  id:
+    '__root__' | '/' | '/faq' | '/konfirmasi' | '/kontak' | '/lacak' | '/produk'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +86,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   KonfirmasiRoute: typeof KonfirmasiRoute
   KontakRoute: typeof KontakRoute
+  LacakRoute: typeof LacakRoute
   ProdukRoute: typeof ProdukRoute
 }
 
@@ -109,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KontakRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lacak': {
+      id: '/lacak'
+      path: '/lacak'
+      fullPath: '/lacak'
+      preLoaderRoute: typeof LacakRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produk': {
       id: '/produk'
       path: '/produk'
@@ -124,6 +142,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   KonfirmasiRoute: KonfirmasiRoute,
   KontakRoute: KontakRoute,
+  LacakRoute: LacakRoute,
   ProdukRoute: ProdukRoute,
 }
 export const routeTree = rootRouteImport
