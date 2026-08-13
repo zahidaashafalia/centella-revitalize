@@ -24,7 +24,9 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const best = products.filter((p) => p.badge === "Best Seller" || p.badge === "Promo").slice(0, 4);
+  const best = products.filter((p) => p.badge === "Best Seller");
+  const promo = products.filter((p) => p.badge === "Promo");
+  const others = products.filter((p) => !p.badge);
 
   return (
     <main>
@@ -105,10 +107,20 @@ function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-5 pb-16 md:px-8">
-        <p className="eyebrow">Koleksi Lengkap</p>
-        <h2 className="mt-2 font-display text-3xl">Semua Produk Centella</h2>
+        <p className="eyebrow">Harga Spesial</p>
+        <h2 className="mt-2 font-display text-3xl">Promo Bulan Ini</h2>
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((p) => (
+          {promo.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-5 pb-16 md:px-8">
+        <p className="eyebrow">Koleksi Lengkap</p>
+        <h2 className="mt-2 font-display text-3xl">Produk Lainnya</h2>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {others.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>

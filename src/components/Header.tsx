@@ -10,6 +10,7 @@ export function Header() {
     { to: "/", label: "Home" },
     { to: "/produk", label: "Produk" },
     { to: "/faq", label: "FAQ" },
+    { to: "/lacak", label: "Lacak" },
     { to: "/kontak", label: "Kontak" },
   ] as const;
 
@@ -27,7 +28,7 @@ export function Header() {
             </span>
           </Link>
 
-          <nav className="ml-auto hidden gap-8 md:flex">
+          <nav className="ml-auto hidden gap-7 md:flex">
             {links.map((l) => (
               <Link
                 key={l.to}

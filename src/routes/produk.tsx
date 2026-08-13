@@ -24,7 +24,12 @@ export const Route = createFileRoute("/produk")({
   }),
 });
 
-const categories = ["Semua", ...Array.from(new Set(products.map((p) => p.category)))];
+const categories = [
+  "Semua",
+  "Best Seller",
+  "Promo",
+  ...Array.from(new Set(products.map((p) => p.category))),
+];
 
 function ProdukPage() {
   const [q, setQ] = useState("");
@@ -34,7 +39,8 @@ function ProdukPage() {
   const list = useMemo(() => {
     let l = products.filter(
       (p) =>
-        (cat === "Semua" || p.category === cat) &&
+        (cat === "Semua" ||
+          (cat === "Best Seller" || cat === "Promo" ? p.badge === cat : p.category === cat)) &&
         (p.name.toLowerCase().includes(q.toLowerCase()) ||
           p.category.toLowerCase().includes(q.toLowerCase())),
     );
@@ -84,6 +90,20 @@ function ProdukPage() {
           <option value="termurah">Harga Termurah</option>
           <option value="termahal">Harga Termahal</option>
         </select>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        {categories.map((c) => (
+          <button
+            key={c}
+            onClick={() => setCat(c)}
+            className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-widest transition-colors ${
+              cat === c ? "border-primary bg-foreground text-background" : "border-border"
+            }`}
+          >
+            {c}
+          </button>
+        ))}
       </div>
 
       <p className="mt-4 text-xs text-muted-foreground">{list.length} produk ditemukan</p>
