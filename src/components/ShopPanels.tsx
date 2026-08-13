@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { useShop } from "@/lib/shop-store";
 import { getProduct, rupiah, STORE } from "@/lib/products";
 
@@ -48,6 +49,19 @@ export function CartDrawer() {
                     Hapus
                   </button>
                 </div>
+                {product.stock <= 0 ? (
+                  <p className="mt-2 text-xs font-medium text-destructive">
+                    Stok habis — hapus produk ini untuk melanjutkan checkout.
+                  </p>
+                ) : qty > product.stock ? (
+                  <p className="mt-2 text-xs font-medium text-destructive">
+                    Sisa stok hanya {product.stock}. Kurangi jumlah pesanan.
+                  </p>
+                ) : product.stock <= 5 ? (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Stok tersisa {product.stock} — segera checkout.
+                  </p>
+                ) : null}
               </div>
             </div>
           ))}
@@ -56,8 +70,16 @@ export function CartDrawer() {
           <Row label="Subtotal" value={rupiah(shop.subtotal)} />
           <Row label="Ongkir" value={shop.shipping === 0 ? "Gratis" : rupiah(shop.shipping)} />
           <Row label="Total" value={rupiah(shop.total)} strong />
+          <p className="text-xs text-muted-foreground">
+            Estimasi tiba {STORE.shippingOptions[0].eta} setelah pesanan diproses ({STORE.processing}).
+          </p>
+          {shop.stockIssues.length > 0 && (
+            <p className="rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              Ada {shop.stockIssues.length} produk yang melebihi stok atau habis. Perbaiki dulu sebelum checkout.
+            </p>
+          )}
           <button
-            disabled={shop.lines.length === 0}
+            disabled={shop.lines.length === 0 || shop.stockIssues.length > 0}
             onClick={() => shop.setPanel("checkout")}
             className="w-full rounded-full bg-foreground py-3 text-xs font-semibold uppercase tracking-widest text-background disabled:opacity-40"
           >
