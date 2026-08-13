@@ -7,7 +7,11 @@ export function ProductCard({ product }: { product: Product }) {
   const out = product.stock <= 0;
 
   return (
-    <article className="group card-lux overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lux)]">
+    <article
+      className={`group card-lux overflow-hidden transition-all duration-300 ${
+        out ? "opacity-70 grayscale" : "hover:-translate-y-1 hover:shadow-[var(--shadow-lux)]"
+      }`}
+    >
       <div className="relative">
         <button
           onClick={() => setDetailId(product.id)}
