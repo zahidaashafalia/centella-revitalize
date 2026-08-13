@@ -5,10 +5,27 @@ type Panel = null | "cart" | "wishlist" | "checkout";
 
 type Review = { name: string; rating: number; text: string };
 
+export type OrderItem = { id: string; name: string; qty: number; price: number };
+
+export type Order = {
+  code: string;
+  createdAt: number;
+  items: OrderItem[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+  name: string;
+  note: string;
+  method: string;
+  eta: string;
+};
+
 type ShopState = {
   cart: Record<string, number>;
   wishlist: string[];
   reviews: Record<string, Review[]>;
+  orders: Order[];
+  stockIssues: { product: Product; qty: number }[];
   panel: Panel;
   detailId: string | null;
   toast: string | null;
@@ -23,6 +40,8 @@ type ShopState = {
   clear: () => void;
   toggleWish: (id: string) => void;
   addReview: (id: string, review: Review) => void;
+  createOrder: (info: { name: string; note: string; method: string; eta: string }) => Order;
+  findOrder: (code: string) => Order | undefined;
   setPanel: (p: Panel) => void;
   setDetailId: (id: string | null) => void;
   notify: (msg: string) => void;
@@ -44,6 +63,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [reviews, setReviews] = useState<Record<string, Review[]>>({});
+  const [orders, setOrders] = useState<Order[]>([]);
   const [panel, setPanel] = useState<Panel>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -53,6 +73,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     setCart(load("cm_cart", {}));
     setWishlist(load("cm_wish", []));
     setReviews(load("cm_reviews", {}));
+    setOrders(load<Order[]>("cm_orders", []));
     setHydrated(true);
   }, []);
 
@@ -61,7 +82,8 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("cm_cart", JSON.stringify(cart));
     localStorage.setItem("cm_wish", JSON.stringify(wishlist));
     localStorage.setItem("cm_reviews", JSON.stringify(reviews));
-  }, [cart, wishlist, reviews, hydrated]);
+    localStorage.setItem("cm_orders", JSON.stringify(orders));
+  }, [cart, wishlist, reviews, orders, hydrated]);
 
   useEffect(() => {
     if (!toast) return;
@@ -80,6 +102,8 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       cart,
       wishlist,
       reviews,
+      orders,
+      stockIssues: lines.filter((l) => l.product.stock <= 0 || l.qty > l.product.stock),
       panel,
       detailId,
       toast,
@@ -118,11 +142,35 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       },
       addReview: (id, review) =>
         setReviews((r) => ({ ...r, [id]: [review, ...(r[id] || [])] })),
+      createOrder: (info) => {
+        const order: Order = {
+          code:
+            "CM-" +
+            new Date().toISOString().slice(2, 10).replace(/-/g, "") +
+            "-" +
+            Math.random().toString(36).slice(2, 6).toUpperCase(),
+          createdAt: Date.now(),
+          items: lines.map((l) => ({
+            id: l.product.id,
+            name: l.product.name,
+            qty: l.qty,
+            price: l.product.price,
+          })),
+          subtotal,
+          shipping,
+          total: subtotal + shipping,
+          ...info,
+        };
+        setOrders((o) => [order, ...o]);
+        return order;
+      },
+      findOrder: (code) =>
+        orders.find((o) => o.code.toLowerCase() === code.trim().toLowerCase()),
       setPanel,
       setDetailId,
       notify: setToast,
     };
-  }, [cart, wishlist, reviews, panel, detailId, toast]);
+  }, [cart, wishlist, reviews, orders, panel, detailId, toast]);
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 }

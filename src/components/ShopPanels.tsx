@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { useShop } from "@/lib/shop-store";
 import { getProduct, rupiah, STORE } from "@/lib/products";
 
@@ -48,6 +49,19 @@ export function CartDrawer() {
                     Hapus
                   </button>
                 </div>
+                {product.stock <= 0 ? (
+                  <p className="mt-2 text-xs font-medium text-destructive">
+                    Stok habis — hapus produk ini untuk melanjutkan checkout.
+                  </p>
+                ) : qty > product.stock ? (
+                  <p className="mt-2 text-xs font-medium text-destructive">
+                    Sisa stok hanya {product.stock}. Kurangi jumlah pesanan.
+                  </p>
+                ) : product.stock <= 5 ? (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Stok tersisa {product.stock} — segera checkout.
+                  </p>
+                ) : null}
               </div>
             </div>
           ))}
@@ -56,8 +70,16 @@ export function CartDrawer() {
           <Row label="Subtotal" value={rupiah(shop.subtotal)} />
           <Row label="Ongkir" value={shop.shipping === 0 ? "Gratis" : rupiah(shop.shipping)} />
           <Row label="Total" value={rupiah(shop.total)} strong />
+          <p className="text-xs text-muted-foreground">
+            Estimasi tiba {STORE.shippingOptions[0]!.eta} setelah pesanan diproses ({STORE.processing}).
+          </p>
+          {shop.stockIssues.length > 0 && (
+            <p className="rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              Ada {shop.stockIssues.length} produk yang melebihi stok atau habis. Perbaiki dulu sebelum checkout.
+            </p>
+          )}
           <button
-            disabled={shop.lines.length === 0}
+            disabled={shop.lines.length === 0 || shop.stockIssues.length > 0}
             onClick={() => shop.setPanel("checkout")}
             className="w-full rounded-full bg-foreground py-3 text-xs font-semibold uppercase tracking-widest text-background disabled:opacity-40"
           >
@@ -116,10 +138,17 @@ export function WishlistDrawer() {
 
 export function CheckoutDialog() {
   const shop = useShop();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [method, setMethod] = useState(0);
   const [form, setForm] = useState({ name: "", note: "" });
 
   if (shop.panel !== "checkout") return null;
+
+  const opt = STORE.shippingOptions[method] ?? STORE.shippingOptions[0]!;
+  const freeShip = shop.subtotal >= STORE.freeShippingMin && method === 0;
+  const ongkir = freeShip ? 0 : opt.cost;
+  const grandTotal = shop.subtotal + ongkir;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,9 +157,9 @@ export function CheckoutDialog() {
       .join("\n");
     const msg = `Halo Centella Madagascar, saya ingin memesan:\n\n${items}\n\nSubtotal: ${rupiah(
       shop.subtotal,
-    )}\nOngkir: ${shop.shipping === 0 ? "Gratis" : rupiah(shop.shipping)}\nTotal: ${rupiah(
-      shop.total,
-    )}\n\nNama: ${form.name || "-"}\nCatatan: ${form.note || "-"}`;
+    )}\nOngkir (${opt.name}): ${ongkir === 0 ? "Gratis" : rupiah(ongkir)}\nEstimasi tiba: ${
+      opt.eta
+    }\nTotal: ${rupiah(grandTotal)}\n\nNama: ${form.name || "-"}\nCatatan: ${form.note || "-"}`;
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(msg).catch(() => {});
     }
@@ -138,10 +167,18 @@ export function CheckoutDialog() {
   };
 
   const goToShopee = () => {
+    const order = shop.createOrder({
+      name: form.name,
+      note: form.note,
+      method: opt.name,
+      eta: opt.eta,
+    });
     window.open(STORE.shopee.url, "_blank");
     shop.clear();
     shop.setPanel(null);
-    shop.notify("Ringkasan pesanan disalin — lanjut ke Shopee Official ✓");
+    setStep(1);
+    shop.notify("Pesanan tercatat — cek halaman konfirmasi ✓");
+    navigate({ to: "/konfirmasi", search: { kode: order.code } });
   };
 
   return (
@@ -183,17 +220,56 @@ export function CheckoutDialog() {
               <p className="mt-2 text-sm leading-relaxed">{STORE.address}</p>
             </div>
 
+            <div className="mt-4 rounded-2xl border border-border p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Pengiriman &amp; Ongkir
+              </h3>
+              <p className="mt-2 text-xs text-muted-foreground">Waktu proses: {STORE.processing}</p>
+              <div className="mt-3 space-y-2">
+                {STORE.shippingOptions.map((o, i) => {
+                  const free = shop.subtotal >= STORE.freeShippingMin && i === 0;
+                  return (
+                    <label
+                      key={o.name}
+                      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${
+                        method === i ? "border-primary bg-secondary" : "border-border"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="ship"
+                        checked={method === i}
+                        onChange={() => setMethod(i)}
+                        className="mt-1 accent-current"
+                      />
+                      <span className="flex-1">
+                        <span className="flex justify-between text-sm font-medium">
+                          <span>{o.name}</span>
+                          <span className={free ? "text-primary" : ""}>
+                            {free ? "Gratis" : rupiah(o.cost)}
+                          </span>
+                        </span>
+                        <span className="mt-0.5 block text-xs text-muted-foreground">
+                          Estimasi tiba {o.eta} · {o.note}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Estimasi tiba dihitung setelah pesanan diproses, di luar hari libur nasional.
+              </p>
+            </div>
+
             <div className="mt-4 space-y-2 rounded-2xl bg-secondary p-4">
               <Row label="Subtotal" value={rupiah(shop.subtotal)} />
               <Row
-                label="Ongkir"
-                value={
-                  shop.subtotal >= STORE.freeShippingMin
-                    ? "Gratis (di atas Rp 300.000)"
-                    : rupiah(shop.shipping)
-                }
+                label={`Ongkir — ${opt.name}`}
+                value={freeShip ? "Gratis (di atas Rp 300.000)" : rupiah(ongkir)}
               />
-              <Row label="Total Belanja" value={rupiah(shop.total)} strong />
+              <Row label="Estimasi Tiba" value={opt.eta} />
+              <Row label="Total Belanja" value={rupiah(grandTotal)} strong />
             </div>
 
             <form onSubmit={submit} className="mt-5 space-y-3">
@@ -270,11 +346,10 @@ export function CheckoutDialog() {
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 Total Belanja
               </p>
-              <p className="mt-1 font-display text-2xl text-primary">{rupiah(shop.total)}</p>
+              <p className="mt-1 font-display text-2xl text-primary">{rupiah(grandTotal)}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                {shop.subtotal >= STORE.freeShippingMin
-                  ? "Gratis ongkir sudah termasuk"
-                  : `Ongkir ${rupiah(shop.shipping)} ditambahkan`}
+                {freeShip ? "Gratis ongkir sudah termasuk" : `Ongkir ${rupiah(ongkir)} ditambahkan`} ·{" "}
+                {opt.name} · estimasi tiba {opt.eta}
               </p>
             </div>
 
