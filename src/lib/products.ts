@@ -190,7 +190,26 @@ export const STORE = {
     "Lantai 11 & 12, Gangnam N Tower, 129 Teheran-ro, Gangnam-gu, Seoul, Republik Korea (Kode Pos: 06133)",
   shipping: 22000,
   freeShippingMin: 300000,
+  processing: "1×24 jam kerja (pesanan sebelum 15.00 WIB diproses hari yang sama)",
+  shippingOptions: [
+    {
+      name: "Reguler (JNE / J&T)",
+      eta: "2–4 hari kerja",
+      cost: 22000,
+      note: "Gratis untuk belanja di atas Rp 300.000",
+    },
+    { name: "Kargo Hemat", eta: "5–8 hari kerja", cost: 15000, note: "Cocok untuk luar Jawa" },
+    { name: "Instant / Same Day", eta: "3–8 jam", cost: 35000, note: "Khusus Jabodetabek" },
+  ],
 };
+
+export const SHIPPING_STEPS = [
+  { key: "confirm", label: "Pesanan dikonfirmasi", desc: "Ringkasan diterima & stok dicek" },
+  { key: "packed", label: "Dikemas", desc: "Produk disiapkan di gudang resmi" },
+  { key: "shipped", label: "Dikirim kurir", desc: "Nomor resi aktif di Shopee" },
+  { key: "delivered", label: "Sampai tujuan", desc: "Estimasi 2–4 hari kerja" },
+] as const;
+
 
 export const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 export const getProduct = (id: string) => products.find((p) => p.id === id);
