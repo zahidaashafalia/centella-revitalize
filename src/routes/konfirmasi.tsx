@@ -6,7 +6,7 @@ import { rupiah, STORE, SHIPPING_STEPS } from "@/lib/products";
 export const Route = createFileRoute("/konfirmasi")({
   component: KonfirmasiPage,
   validateSearch: (search: Record<string, unknown>) => ({
-    kode: typeof search.kode === "string" ? search.kode : "",
+    kode: typeof search['kode'] === "string" ? (search['kode'] as string) : "",
   }),
   head: () => ({
     meta: [

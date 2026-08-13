@@ -71,7 +71,7 @@ export function CartDrawer() {
           <Row label="Ongkir" value={shop.shipping === 0 ? "Gratis" : rupiah(shop.shipping)} />
           <Row label="Total" value={rupiah(shop.total)} strong />
           <p className="text-xs text-muted-foreground">
-            Estimasi tiba {STORE.shippingOptions[0].eta} setelah pesanan diproses ({STORE.processing}).
+            Estimasi tiba {STORE.shippingOptions[0]!.eta} setelah pesanan diproses ({STORE.processing}).
           </p>
           {shop.stockIssues.length > 0 && (
             <p className="rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">
@@ -145,7 +145,7 @@ export function CheckoutDialog() {
 
   if (shop.panel !== "checkout") return null;
 
-  const opt = STORE.shippingOptions[method];
+  const opt = STORE.shippingOptions[method] ?? STORE.shippingOptions[0]!;
   const freeShip = shop.subtotal >= STORE.freeShippingMin && method === 0;
   const ongkir = freeShip ? 0 : opt.cost;
   const grandTotal = shop.subtotal + ongkir;
