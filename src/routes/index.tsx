@@ -1,21 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { heroImage, products } from "@/lib/products";
+import { SERIES, heroImage, products } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
   head: () => ({
     meta: [
-      { title: "Centella Madagascar — Skincare Centella untuk Kulit Sensitif" },
+      { title: "SKIN1004 Centella Madagascar — 6 Seri Skincare Resmi" },
       {
         name: "description",
         content:
-          "Toko resmi skincare Centella Madagascar: toner, ampoule, sunscreen, dan cream penenang kulit. Belanja mudah lewat Shopee official.",
+          "Toko resmi SKIN1004 Centella Madagascar: seri Hijau, Kuning, Biru, Coklat, Pink, dan Silver. 40+ produk untuk kulit sensitif, kusam, kering, hingga berjerawat.",
       },
-      { property: "og:title", content: "Centella Madagascar — Skincare Centella" },
+      { property: "og:title", content: "SKIN1004 Centella Madagascar — 6 Seri Skincare" },
       {
         property: "og:description",
-        content: "Rangkaian perawatan Centella Asiatica untuk kulit sensitif. Belanja online sekarang.",
+        content: "Rangkaian Centella Asiatica untuk setiap kebutuhan kulit. Belanja online sekarang.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const best = products.filter((p) => p.badge === "Best Seller");
   const promo = products.filter((p) => p.badge === "Promo");
-  const others = products.filter((p) => !p.badge);
+
 
   return (
     <main>
