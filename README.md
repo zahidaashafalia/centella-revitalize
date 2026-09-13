@@ -1,7 +1,4 @@
 # Centella Revitalize
-
-aku pernah membuat website toko e commerce dengan brand skincare skin 1004 centella madagaskar dengan desaain elegant tapi menurutku untuk fiturnya itu sangat tidak lengkap aku ingin kamu merevisi nya seperti menambahkan fitur tapi untuk gambarnya tidak usah diubah tapi kalau harganya ada yang tidak sesuai kamu bisa menggantinya hanya gambarnya saja jangan diubah oke selain itu bisa kamu perbaiki dan mengubahnya menjadi website toko ecommerce beneran menggunakan bahasa pemrogaman html
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
